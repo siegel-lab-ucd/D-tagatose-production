@@ -1,7 +1,10 @@
 
 # Rosetta Docking Run Submission Script [Documentation](docs/Submit_Script_Documentation.md)
 
-The provided script is used to submit a job for protein-protein docking using the Rosetta software suite. Below is a detailed breakdown of the components of the script and their functionalities:
+The provided script is used to submit a job for protein-protein docking using the Rosetta software suite. And can be run by adjusting the necessary paths in `submit.sh` to you local installation of Rosetta and running the bash profile direclty or using the job manager of your choice.
+
+
+Below is a detailed breakdown of the components of the script and their functionalities:
 
 ## Script Overview
 

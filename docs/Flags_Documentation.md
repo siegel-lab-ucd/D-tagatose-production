@@ -69,7 +69,5 @@ Sets the minimum allowed backbone deviation to 0.05, controlling the flexibility
 
 ## Extra Residue Files
 
-### `-extra_res_fa /share/siegellab/aian/RareSugars/Ligands/open/Ligand_params/DF6.params`
+### `-extra_res_fa DF6.params`
 Specifies the path to additional residue parameter files, necessary for including non-standard residues or ligands in the docking process.
-
-These flags provide a comprehensive toolkit for controlling and refining the docking process within Rosetta, allowing for highly specific and tailored docking runs according to the needs of the researcher.

@@ -1,0 +1,1 @@
+/share/siegellab/software/Rosetta_group_0618/main/source/bin/rosetta_scripts.default.linuxgccrelease -database /share/siegellab/software/Rosetta_group_0618/main/database , @flags  -parser:protocol docking.xml  -s GatZ_F6P.pdb -enzdes::cstfile 4Epimv7.cst -suffix -nstruct 1 -overwrite -suffix _$SLURM_ARRAY_TASK_ID -out:path:all test/

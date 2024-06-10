@@ -11,12 +11,12 @@ The script is used to execute the `rosetta_scripts.default.linuxgccrelease` bina
 ## Script Components
 
 ```bash
-/share/siegellab/software/Rosetta_group_0618/main/source/bin/rosetta_scripts.default.linuxgccrelease -database /share/siegellab/software/Rosetta_group_0618/main/database , @flags  -parser:protocol docking.xml  -s GatZ_F6P.pdb -enzdes::cstfile 4Epimv7.cst -suffix -nstruct 1 -overwrite -suffix _$SLURM_ARRAY_TASK_ID -out:path:all test/
+path/to/rosetta_scripts -database /path/to/rosetta_database , @flags  -parser:protocol docking.xml  -s GatZ_F6P.pdb -enzdes::cstfile 4Epimv7.cst -suffix -nstruct 1 -overwrite -suffix _$SLURM_ARRAY_TASK_ID -out:path:all test/
 ```
 
 ### Executable Path
 
-- `/share/siegellab/software/Rosetta_group_0618/main/source/bin/rosetta_scripts.default.linuxgccrelease`: This is the path to the Rosetta executable that will run the docking protocol.
+- `[path/to/rosetta_scripts]`: This is the path to the Rosetta executable that will run the docking protocol.
 
 ### Database Path
 
@@ -51,7 +51,7 @@ This script is typically submitted in a high-performance computing (HPC) environ
 
 ## Conclusion
 
-This documentation provides a detailed explanation of each component of the Rosetta docking submission script. By adjusting the parameters and paths according to specific project requirements, researchers can leverage this script to perform efficient and reproducible docking simulations using the Rosetta suite.
+By adjusting the parameters and paths according to specific project requirements, researchers can leverage this script to perform efficient and reproducible docking simulations using the Rosetta suite.
 
 # Flags Documentation
 
@@ -123,13 +123,6 @@ Favors native residues with a bonus of 2, encouraging the preservation of native
 
 ### `-enzdes::bb_min_allowed_dev 0.05`
 Sets the minimum allowed backbone deviation to 0.05, controlling the flexibility of the backbone during design.
-
-## Extra Residue Files
-
-### `-extra_res_fa /share/siegellab/aian/RareSugars/Ligands/open/Ligand_params/DF6.params`
-Specifies the path to additional residue parameter files, necessary for including non-standard residues or ligands in the docking process.
-
-These flags provide a comprehensive toolkit for controlling and refining the docking process within Rosetta, allowing for highly specific and tailored docking runs according to the needs of the researcher.
 
 # Constraints Documentation
 
@@ -258,6 +251,3 @@ This XML script is designed to run a docking simulation in Rosetta, specifically
   - `repack_wbb_wppi`: Repacks while preserving protein-protein and protein-ligand interfaces.
 - **Add Filters**:
   - `allcst`: Applies the all constraints filter.
-
-This script configures a detailed and complex docking protocol, emphasizing constraint management, interface detection, and refinement of the ligand docking process using genetic algorithms. Please ensure that all component names (e.g., movers and filters) match those available in your Rosetta installation, as any typographical errors or mismatches can cause the script to fail.
-

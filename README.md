@@ -1,6 +1,5 @@
-# Submit script Documentation
 
-# Rosetta Docking Run Submission Script Documentation
+# Rosetta Docking Run Submission Script [Documentation](docs/Submit_Script_Documentation.md)
 
 The provided script is used to submit a job for protein-protein docking using the Rosetta software suite. Below is a detailed breakdown of the components of the script and their functionalities:
 
@@ -53,9 +52,7 @@ This script is typically submitted in a high-performance computing (HPC) environ
 
 By adjusting the parameters and paths according to specific project requirements, researchers can leverage this script to perform efficient and reproducible docking simulations using the Rosetta suite.
 
-# Flags Documentation
-
-# Rosetta Docking Flags Documentation
+# Rosetta Docking Flags [Documentation](docs/Flags_Documentation.md)
 
 This document provides an overview and explanation of the flags used in a Rosetta docking script. Each flag is designed to control specific aspects of the docking process, from input/output settings to energy calculations and residue handling.
 
@@ -124,9 +121,8 @@ Favors native residues with a bonus of 2, encouraging the preservation of native
 ### `-enzdes::bb_min_allowed_dev 0.05`
 Sets the minimum allowed backbone deviation to 0.05, controlling the flexibility of the backbone during design.
 
-# Constraints Documentation
 
-# Rosetta Docking Constraints Documentation
+# Rosetta Docking Constraints [Documentation](docs/Constraints_Documentation.md)
 
 This documentation provides an overview of the constraints used in a Rosetta docking run. Constraints are crucial for guiding the docking process and ensuring that the final complex conforms to known or predicted biological interactions. Below, each constraint set is detailed with the specific atoms and residues involved, along with the parameters used for distance, angle, and torsion constraints.
 
@@ -177,11 +173,8 @@ This documentation provides an overview of the constraints used in a Rosetta doc
 - `TEMPLATE:: ATOM_MAP` specifies which atoms are involved from each residue.
 - `CONSTRAINT::` lines define the type of constraint (distance, angle, torsion) and their parameters (ideal value, standard deviation, weight, periodicity).
 
-This documentation should assist in understanding how constraints are applied in Rosetta docking scripts, facilitating adjustments and customization for specific docking scenarios.
 
-# XML mover Documentation
-
-# RosettaScripts XML Documentation
+# RosettaScripts XML [Documentation](docs/XML_Mover_Documentation.md)
 
 This XML script is designed to run a docking simulation in Rosetta, specifically focusing on the interaction between a protein and a ligand. The script utilizes various custom score functions, task operations, filters, and movers to accomplish this task. Below is a breakdown of the key components of this XML script.
 

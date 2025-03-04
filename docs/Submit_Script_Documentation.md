@@ -72,10 +72,13 @@ Modify these parameters based on your job requirements:
 ### 2. Update Paths
 
 Replace these paths with your specific locations:
-- Module load command for your HPC environment
-- Rosetta database path or environment variable
+- Module load command for your HPC environment (e.g., `module load rosetta/3.13`)
+- Rosetta executable path (either direct path or through environment variables)
+- Rosetta database path (e.g., `/path/to/rosetta_database` or `$ROSETTA_DB`)
 - Input file paths (PDB, XML, constraint files)
 - Output directory
+
+**IMPORTANT**: The provided SampleData/submit.sh script contains template paths that MUST be replaced with your actual Rosetta installation paths before running. Look for `/path/to/rosetta_scripts` and `/path/to/rosetta_database` in the script and update them accordingly.
 
 ### 3. Adjust Rosetta Parameters
 

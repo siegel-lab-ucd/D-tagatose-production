@@ -22,7 +22,7 @@ path/to/rosetta_scripts -database /path/to/rosetta_database , @flags  -parser:pr
 
 ### Database Path
 
-- `-database /share/siegellab/software/Rosetta_group_0618/main/database`: This option specifies the location of the Rosetta database, which contains necessary data for various calculations during the run.
+- `-database /path/to/rosetta_database`: This option specifies the location of the Rosetta database, which contains necessary data for various calculations during the run. You must update this to your local Rosetta installation path.
 
 ### Flags
 
@@ -50,6 +50,23 @@ path/to/rosetta_scripts -database /path/to/rosetta_database , @flags  -parser:pr
 ## Execution Environment
 
 This script is typically submitted in a high-performance computing (HPC) environment using a job scheduler like SLURM. The use of `$SLURM_ARRAY_TASK_ID` suggests that the script might be part of a job array, allowing multiple instances of the script to run simultaneously with different parameters or input files.
+
+## Path Configuration
+
+Before running the docking simulations, you need to configure the correct paths in the following files:
+
+1. **SampleData/submit.sh**:
+   - Update `/path/to/rosetta_scripts` with your Rosetta executable path
+   - Update `/path/to/rosetta_database` with your Rosetta database path
+
+2. **Output Directory**:
+   - The default output directory is set to `results/` in the submit script
+   - Ensure this directory exists or change it to your preferred output location
+
+You can find your Rosetta installation paths by:
+- Checking your Rosetta installation documentation
+- Using the command `which rosetta_scripts` if you have it in your PATH
+- Consulting your system administrator if using a shared HPC environment
 
 ## Conclusion
 

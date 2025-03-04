@@ -194,6 +194,17 @@ This documentation provides an overview of the constraints used in a Rosetta doc
 - `CONSTRAINT::` lines define the type of constraint (distance, angle, torsion) and their parameters (ideal value, standard deviation, weight, periodicity).
 
 
+# Ligand Preparation [Documentation](docs/CalcAM1_Documentation.md)
+
+Before running docking simulations with ligands, you need to generate Rosetta parameter files. The repository includes a script that automates this process:
+
+- `examples/pre-processing/CalcAM1.py`: A Python script that prepares ligand parameters by:
+  1. Converting input files to MOL2 format
+  2. Calculating AM1-BCC charges using Antechamber
+  3. Generating Rosetta parameter files
+
+**IMPORTANT**: This script is an implementation based on the standard preprocessing protocol described in the [official Rosetta documentation](https://docs.rosettacommons.org/docs/latest/GALigandDock-Preprocessing). See the documentation for detailed usage instructions.
+
 # RosettaScripts XML [Documentation](docs/XML_Mover_Documentation.md)
 
 This XML script is designed to run a docking simulation in Rosetta, specifically focusing on the interaction between a protein and a ligand. The script utilizes various custom score functions, task operations, filters, and movers to accomplish this task. Below is a breakdown of the key components of this XML script.

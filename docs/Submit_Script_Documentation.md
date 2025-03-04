@@ -1,52 +1,116 @@
-# Rosetta Docking Run Submission Script Documentation
+# Job Submission for Rosetta Docking Simulations
 
-The provided script is used to submit a job for protein-protein docking using the Rosetta software suite. Below is a detailed breakdown of the components of the script and their functionalities:
+This guide explains how to use the SLURM submission script to run Rosetta docking simulations on high-performance computing (HPC) clusters. The script coordinates execution of the Rosetta software with appropriate options for protein-ligand docking.
 
-## Script Overview
+## SLURM Script Structure
 
-The script is used to execute the `rosetta_scripts.default.linuxgccrelease` binary, which is a versatile tool within the Rosetta suite designed to perform a variety of protein modeling tasks, including docking. The script specifies various options and parameters that control the behavior of the docking process.
+### Basic Usage
 
-## Script Components
-
+To submit a docking job:
 ```bash
-/share/siegellab/software/Rosetta_group_0618/main/source/bin/rosetta_scripts.default.linuxgccrelease -database /share/siegellab/software/Rosetta_group_0618/main/database , @flags  -parser:protocol docking.xml  -s GatZ_F6P.pdb -enzdes::cstfile 4Epimv7.cst -suffix -nstruct 1 -overwrite -suffix _$SLURM_ARRAY_TASK_ID -out:path:all test/
+sbatch submit.sh
 ```
 
-### Executable Path
+To submit an array of 100 docking jobs (generating 100 structures):
+```bash
+sbatch --array=1-100 submit.sh
+```
 
-- `/share/siegellab/software/Rosetta_group_0618/main/source/bin/rosetta_scripts.default.linuxgccrelease`: This is the path to the Rosetta executable that will run the docking protocol.
+### Sample Script Contents
 
-### Database Path
+```bash
+#!/bin/bash
+#SBATCH --job-name=rosetta_dock
+#SBATCH --output=rosetta_%A_%a.out
+#SBATCH --error=rosetta_%A_%a.err
+#SBATCH --time=24:00:00
+#SBATCH --mem=8G
+#SBATCH --cpus-per-task=1
 
-- `-database /share/siegellab/software/Rosetta_group_0618/main/database`: This option specifies the location of the Rosetta database, which contains necessary data for various calculations during the run.
+# Load required modules (customize for your HPC environment)
+module load rosetta/3.13
 
-### Flags
+# Execute Rosetta docking run
+rosetta_scripts -database $ROSETTA_DB @flags \
+  -parser:protocol docking.xml \
+  -s GatZ_F6P.pdb \
+  -enzdes::cstfile 4Epimv7.cst \
+  -suffix -nstruct 1 -overwrite \
+  -suffix _${SLURM_ARRAY_TASK_ID} \
+  -out:path:all results/
+```
 
-- `@flags`: This option allows the inclusion of a separate flags file that can contain additional options or overrides for default settings.
+## Command Details
 
-### XML Protocol
+The command has three main components:
 
-- `-parser:protocol docking.xml`: Specifies the XML file (`docking.xml`) that contains the detailed protocol for docking. This file defines the steps and specific configurations to be used during the docking process.
+1. **Rosetta executable and database**
+   - `rosetta_scripts`: The Rosetta application for script-based protocols
+   - `-database $ROSETTA_DB`: Path to Rosetta database files (rotamer libraries, etc.)
 
-### Input Structure
+2. **Input files**
+   - `@flags`: Additional settings from a flags file
+   - `-parser:protocol docking.xml`: XML file defining the docking protocol
+   - `-s GatZ_F6P.pdb`: Input structure file
+   - `-enzdes::cstfile 4Epimv7.cst`: Constraints file for guiding interactions
 
-- `-s GatZ_F6P.pdb`: The input PDB file (`GatZ_F6P.pdb`) that contains the initial structure(s) to be docked.
+3. **Output settings**
+   - `-suffix -nstruct 1 -overwrite`: Generate one structure, allow overwriting
+   - `-suffix _${SLURM_ARRAY_TASK_ID}`: Add job array ID to filenames
+   - `-out:path:all results/`: Save all output to results directory
 
-### Constraint File
+## Customizing for Your Environment
 
-- `-enzdes::cstfile 4Epimv7.cst`: Specifies a constraint file (`4Epimv7.cst`) used to enforce specific distances or angles during the docking, which is crucial for maintaining realistic interactions based on known biochemical data.
+### 1. Adjust SLURM Settings
 
-### Job Distribution and Output
+Modify these parameters based on your job requirements:
+- `--time`: Maximum runtime (format: HH:MM:SS)
+- `--mem`: Memory allocation
+- `--cpus-per-task`: CPU cores per job
+- `--array`: Number range for multiple jobs (e.g., `--array=1-100`)
 
-- `-nstruct 1`: This option sets the number of structures (docking attempts) to be generated to 1.
-- `-overwrite`: Allows overwriting of existing files in the output directory.
-- `-suffix _$SLURM_ARRAY_TASK_ID`: Appends the SLURM array task ID to the output filenames, facilitating unique naming for parallel job submissions.
-- `-out:path:all test/`: Defines the directory (`test/`) where all output files from the docking run will be saved.
+### 2. Update Paths
 
-## Execution Environment
+Replace these paths with your specific locations:
+- Module load command for your HPC environment
+- Rosetta database path or environment variable
+- Input file paths (PDB, XML, constraint files)
+- Output directory
 
-This script is typically submitted in a high-performance computing (HPC) environment using a job scheduler like SLURM. The use of `$SLURM_ARRAY_TASK_ID` suggests that the script might be part of a job array, allowing multiple instances of the script to run simultaneously with different parameters or input files.
+### 3. Adjust Rosetta Parameters
 
-## Conclusion
+Common modifications:
+- Increase `-nstruct` for more structures per job
+- Change `-out:path:all` to your preferred output location
+- Add `-jd2::enzdes_out` for enzyme design statistics
 
-This documentation provides a detailed explanation of each component of the Rosetta docking submission script. By adjusting the parameters and paths according to specific project requirements, researchers can leverage this script to perform efficient and reproducible docking simulations using the Rosetta suite.
+## Troubleshooting
+
+### Common Issues
+
+1. **Out of memory errors**
+   - Increase `--mem` in SLURM header
+   - Use `-linmem_ig 10` flag for memory-efficient calculations
+
+2. **Job timeouts**
+   - Increase `--time` limit
+   - Decrease computational complexity in XML protocol
+
+3. **File permission errors**
+   - Ensure output directories exist with write permissions
+   - Check that input files are readable
+
+### Monitoring Jobs
+
+```bash
+# Check job status
+squeue -u $USER
+
+# View job output in real-time
+tail -f rosetta_*_*.out
+
+# Cancel jobs
+scancel [JOB_ID]
+```
+
+This documentation provides a comprehensive reference for running Rosetta docking simulations on HPC clusters using SLURM, enabling large-scale computational experiments for protein engineering and structural biology applications.

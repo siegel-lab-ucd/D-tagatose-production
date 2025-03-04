@@ -1,72 +1,158 @@
-# RosettaScripts XML Documentation
+# RosettaScripts XML Protocol Guide
 
-This XML script is designed to run a docking simulation in Rosetta, specifically focusing on the interaction between a protein and a ligand. The script utilizes various custom score functions, task operations, filters, and movers to accomplish this task. Below is a breakdown of the key components of this XML script.
+This comprehensive guide explains the XML protocol used for Rosetta docking simulations. RosettaScripts provides a powerful framework for customizing simulation protocols by combining modular components for scoring, sampling, and filtering.
 
-## Score Functions (`SCOREFXNS`)
+## XML Structure Overview
 
-### `myscore`
-- **Weights**: `beta_genpot_cart.wts`
-- **Modifications**:
-  - **Coordinate Constraint**: Weight set to 1.0
-  - **Atom Pair Constraint**: Weight set to 1.0
-  - **Angle Constraint**: Weight set to 1.0
-  - **Dihedral Constraint**: Weight set to 1.0
-  - **Residue Type Constraint**: Weight set to 1.0
+```xml
+<ROSETTASCRIPTS>
+  <SCOREFXNS>
+    <!-- Scoring functions define energy terms and weights -->
+  </SCOREFXNS>
+  
+  <SCORINGGRIDS>
+    <!-- Precomputed energy grids for efficient calculations -->
+  </SCORINGGRIDS>
+  
+  <TASKOPERATIONS>
+    <!-- Control which residues can move and how -->
+  </TASKOPERATIONS>
+  
+  <FILTERS>
+    <!-- Evaluate structures and apply acceptance criteria -->
+  </FILTERS>
+  
+  <MOVERS>
+    <!-- Modify structures (core components that do the work) -->
+  </MOVERS>
+  
+  <PROTOCOLS>
+    <!-- Define the execution order of movers and filters -->
+  </PROTOCOLS>
+  
+  <OUTPUT />
+</ROSETTASCRIPTS>
+```
 
-### `cstscore`
-- **Weights**: `beta_genpot_cst.wts`
-- This score function is used primarily for evaluating the energy related to constraints.
+## Score Functions
 
-## Scoring Grids (`SCORINGGRIDS`)
+Score functions determine how Rosetta evaluates the energy and quality of protein structures.
 
-- **Ligand Chain**: X
-- **Width**: 20.0
-- **Grids**:
-  - **ClassicGrid** (`vdw`): Weight = 1.0
+```xml
+<SCOREFXNS>
+  <ScoreFunction name="myscore" weights="beta_genpot_cart.wts">
+    <Reweight scoretype="coordinate_constraint" weight="1.0" />
+    <Reweight scoretype="atom_pair_constraint" weight="1.0" />
+    <Reweight scoretype="angle_constraint" weight="1.0" />
+    <Reweight scoretype="dihedral_constraint" weight="1.0" />
+    <Reweight scoretype="res_type_constraint" weight="1.0" />
+  </ScoreFunction>
+  
+  <ScoreFunction name="cstscore" weights="beta_genpot_cst.wts" />
+</SCOREFXNS>
+```
 
-## Task Operations (`TASKOPERATIONS`)
+- **myscore**: Primary scoring function with constraint terms enabled
+- **cstscore**: Specialized scoring function for evaluating constraint satisfaction
 
-- `DetectProteinLigandInterface`: Configures detection parameters for the interface between protein and ligand.
-- `LimitAromaChi2`: Limits chi2 angles on aromatic residues.
-- `SetCatalyticResPackBehavior`: Allows dynamic repacking behavior around catalytic residues.
-- `PreventResiduesFromRepacking`: Specifies residues that should not be repacked.
+## Scoring Grids
 
-## Filters (`FILTERS`)
+Scoring grids accelerate energy calculations for ligand docking by precomputing interaction energies.
 
-- `EnzScore`:
-  - **Name**: `allcst`
-  - **Score Type**: `cstE`
-  - **Score Function**: `cstscore`
-  - **Whole Pose**: 1
-  - **Energy Cutoff**: 2000
+```xml
+<SCORINGGRIDS ligand_chain="X" width="20.0">
+  <ClassicGrid name="vdw" weight="1.0" />
+</SCORINGGRIDS>
+```
 
-## Movers (`MOVERS`)
+- **ligand_chain**: Specifies which chain contains the ligand (chain X)
+- **width**: Grid dimensions around the ligand (20.0 Å)
+- **ClassicGrid**: Standard grid for van der Waals interactions
 
-### `AddOrRemoveMatchCsts`
-- **Name**: `cstadd`
-- **Instruction**: `add_new` (Adds new constraints)
+## Task Operations
 
-### `GALigandDock`
-- **Run Mode**: `refine`
-- **Score Function**: `myscore`
-- **Padding**: 6.0
-- **Side Chains**: `aniso`
-- **Final Exact Minimize**: `bbsc2`
-- **Rotation Probability**: 0.9
-- **Rotation Energy Cut-off**: 100
-- **Stages**:
-  - Each stage has 5 repeats and a pool of 50 candidates.
+Task operations control which residues can move and how they're sampled during packing.
 
-## Protocols (`PROTOCOLS`)
+```xml
+<TASKOPERATIONS>
+  <DetectProteinLigandInterface name="interface" cut1="6.0" cut2="8.0" />
+  <LimitAromaChi2 name="limitchi" />
+  <SetCatalyticResPackBehavior name="protect_cat" />
+  <PreventResiduesFromRepacking name="fix_bb" />
+</TASKOPERATIONS>
+```
 
-- **CSTON**: Activates constraints.
-- **Add Movers**:
-  - `cstadd`: Adds constraints.
-  - `start_from`: Initializes the starting configuration.
-  - `GAdock`: Executes the genetic algorithm based ligand docking.
-  - `interative_dp`: Likely a typo, intended to be `interactive_dp` or similar.
-  - `repack_wbb_wppi`: Repacks while preserving protein-protein and protein-ligand interfaces.
-- **Add Filters**:
-  - `allcst`: Applies the all constraints filter.
+- **DetectProteinLigandInterface**: Identifies residues at the protein-ligand interface
+- **LimitAromaChi2**: Restricts sampling of aromatic side chains
+- **SetCatalyticResPackBehavior**: Preserves catalytic residue conformations
+- **PreventResiduesFromRepacking**: Locks specified residues in place
 
-This script configures a detailed and complex docking protocol, emphasizing constraint management, interface detection, and refinement of the ligand docking process using genetic algorithms. Please ensure that all component names (e.g., movers and filters) match those available in your Rosetta installation, as any typographical errors or mismatches can cause the script to fail.
+## Filters
+
+Filters evaluate structures and can reject those that don't meet specific criteria.
+
+```xml
+<FILTERS>
+  <EnzScore name="allcst" score_type="cstE" scorefxn="cstscore" whole_pose="1" energy_cutoff="2000" />
+</FILTERS>
+```
+
+- **EnzScore**: Evaluates constraint energy to ensure proper binding geometry
+- **energy_cutoff**: Maximum allowed constraint energy (higher = less satisfied constraints)
+
+## Movers
+
+Movers perform the actual work of modifying structures during the simulation.
+
+```xml
+<MOVERS>
+  <AddOrRemoveMatchCsts name="cstadd" instruction="add_new" />
+  
+  <GALigandDock name="GAdock" scorefxn="myscore" run_mode="refine"
+                padding="6.0" receptor_side_chain="aniso" 
+                final_exact_minimize="bbsc2"
+                prob_rotation="0.9" rotation_E_cutoff="100">
+    <Stage repeats="5" pool_size="50" />
+    <Stage repeats="5" pool_size="50" />
+    <Stage repeats="5" pool_size="50" />
+  </GALigandDock>
+  
+  <InterfaceDesign name="repack_wbb_wppi" scorefxn="myscore" task_operations="interface,limitchi,protect_cat,fix_bb" />
+</MOVERS>
+```
+
+Key movers in the protocol:
+- **AddOrRemoveMatchCsts**: Manages constraints during simulation
+- **GALigandDock**: Core ligand docking algorithm using genetic algorithm approach
+  - Multiple stages with increasing refinement
+  - Controls side-chain flexibility and minimization
+- **InterfaceDesign**: Repacks interface residues while preserving key interactions
+
+## Protocol Execution
+
+The protocol section defines the sequence of operations to perform.
+
+```xml
+<PROTOCOLS>
+  <Add mover="cstadd" />
+  <Add mover="GAdock" />
+  <Add mover="repack_wbb_wppi" />
+  <Add filter="allcst" />
+</PROTOCOLS>
+```
+
+Execution sequence:
+1. Add constraints to guide docking
+2. Perform genetic algorithm-based ligand docking
+3. Repack interface residues while preserving backbone
+4. Filter results based on constraint satisfaction
+
+## Customizing the Protocol
+
+Common modifications include:
+- Changing score function weights to prioritize different energy terms
+- Adjusting interface detection parameters for different binding sites
+- Modifying genetic algorithm parameters for different search intensities
+- Adding additional filters to enforce specific structural criteria
+
+For detailed parameter descriptions and additional components, refer to the [RosettaScripts documentation](https://www.rosettacommons.org/docs/latest/scripting_documentation/RosettaScripts/RosettaScripts).
